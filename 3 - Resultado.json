@@ -1,0 +1,1613 @@
+{
+  "name": "3 - Resultado",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "cr/result",
+        "authentication": "headerAuth",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "7e1999ae-c86c-42ac-83b2-04b0eefe31c6",
+      "name": "Webhook",
+      "webhookId": "0f26f1d0-5262-4108-9916-4f27e73c47d0",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "30LaQXYCdzZhbzet",
+          "name": "LocaldesaToken"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "dataTableId": {
+          "__rl": true,
+          "value": "xfrUwn1M7VEZmX3W",
+          "mode": "list",
+          "cachedResultName": "cr_jobs",
+          "cachedResultUrl": "/projects/ay1sEloOpwo4pH3l/datatables/xfrUwn1M7VEZmX3W"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyValue": "={{ $json.body.id }}"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "status": "={{ $json.body.status }}",
+            "pr_url": "={{ $json.body.result?.pr_url ?? '' }}",
+            "report_md": "={{ $json.body.report_md }}",
+            "blockers_json": "={{ JSON.stringify($json.body.result?.bloqueantes ?? []) }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "ticket_key",
+              "displayName": "ticket_key",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "summary",
+              "displayName": "summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "developer_account_id",
+              "displayName": "developer_account_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "developer_name",
+              "displayName": "developer_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "pr_url",
+              "displayName": "pr_url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "report_md",
+              "displayName": "report_md",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "blockers_json",
+              "displayName": "blockers_json",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "active",
+              "displayName": "active",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        224,
+        0
+      ],
+      "id": "600d1937-22dc-4bf1-a9f8-7eec30366d3c",
+      "name": "Guardar resultado"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\"ok\": true}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        448,
+        0
+      ],
+      "id": "8d83c287-f716-4d98-bacb-ea599232f7a3",
+      "name": "Responder Ok"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $('Webhook').item.json.body.status }}",
+                    "rightValue": "error",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "2f4d1a85-f060-4848-a57f-ee6d76315691"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "error"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "934b7b9b-e6ae-48a2-80f6-c75927c0a334",
+                    "leftValue": "={{ $('Webhook').item.json.body.status }}",
+                    "rightValue": "done",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "ok"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        672,
+        0
+      ],
+      "id": "9ffdc80f-19de-43e9-b847-ea91411b006d",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "chatId": "1043602295",
+        "text": "=⚠️ CR {{ $('Webhook').item.json.body.ticket_key }} falló El agente no generó un resultado válido. Revisa /root/cr-runs/ en el contenedor.  {{ ($('Webhook').item.json.body.report_md || '').slice(-600) }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        928,
+        -192
+      ],
+      "id": "e464df35-8af1-49db-bcfd-587ff6405444",
+      "name": "TG Error",
+      "webhookId": "ecb131ef-a9a3-4c60-b948-51ba5182c419",
+      "credentials": {
+        "telegramApi": {
+          "id": "hC0KGlFBIsLx27eN",
+          "name": "TokenDevActivaBot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "dataTableId": {
+          "__rl": true,
+          "value": "xfrUwn1M7VEZmX3W",
+          "mode": "list",
+          "cachedResultName": "cr_jobs",
+          "cachedResultUrl": "/projects/ay1sEloOpwo4pH3l/datatables/xfrUwn1M7VEZmX3W"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyValue": "={{ $('Webhook').item.json.body.id }}"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "status": "discarded"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "ticket_key",
+              "displayName": "ticket_key",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "summary",
+              "displayName": "summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "developer_account_id",
+              "displayName": "developer_account_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "developer_name",
+              "displayName": "developer_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "pr_url",
+              "displayName": "pr_url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "report_md",
+              "displayName": "report_md",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "blockers_json",
+              "displayName": "blockers_json",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "active",
+              "displayName": "active",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        1584,
+        320
+      ],
+      "id": "49769d9e-3f6e-42bb-b831-b7304234851b",
+      "name": "Marcar Descartado"
+    },
+    {
+      "parameters": {
+        "chatId": "1043602295",
+        "text": "=❌ {{ $('Webhook').item.json.body.ticket_key }} descartado No se publicó nada. Haz el review manual: {{ $('Webhook').item.json.body.result.pr_url }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1776,
+        320
+      ],
+      "id": "cd1e921c-a6b7-400c-af5b-61cead46cd55",
+      "name": "TG Descartado",
+      "webhookId": "7f7182b7-1c1c-4789-8c1a-3db74ee83253",
+      "credentials": {
+        "telegramApi": {
+          "id": "hC0KGlFBIsLx27eN",
+          "name": "TokenDevActivaBot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "sendAndWait",
+        "chatId": "1043602295",
+        "message": "={{ (() => { const b = $('Webhook').item.json.body; const r = b.result || {}; const bl = r.bloqueantes || []; const sg = Array.isArray(r.sugerencias) ? r.sugerencias : []; let t = (bl.length ? `🔴 ${b.ticket_key} — ${bl.length} bloqueante(s)` : `✅ ${b.ticket_key} — sin bloqueantes`) + `\\nPR: ${r.pr_url}\\n`; if (bl.length) t += '\\n' + bl.map((x, i) => `B${i + 1}. ${x.archivo}:${x.linea}\\n${x.problema}\\n➜ ${x.solucion}`).join('\\n\\n').slice(0, 2000) + '\\n'; t += '\\n💡 Sugerencias:\\n' + (sg.map((s, i) => `S${i + 1}. ${s.archivo}:${s.linea} — ${s.detalle}`).join('\\n').slice(0, 1200) || 'Ninguna'); t += `\\n\\nSugerencia del agente: ${bl.length ? 'RECHAZAR' : 'APROBAR'}`; return t.replace(/([_*`\\[])/g, '\\\\$1'); })() }}",
+        "responseType": "customForm",
+        "defineForm": "json",
+        "jsonOutput": "={{ (() => { const r = $('Webhook').item.json.body.result || {}; const bl = r.bloqueantes || []; const sg = Array.isArray(r.sugerencias) ? r.sugerencias : []; const f = [{ fieldLabel: 'Acción', fieldType: 'dropdown', requiredField: true, fieldOptions: { values: [{ option: 'Aprobar PR' }, { option: 'Rechazar PR' }, { option: 'Descartar' }] } }]; if (bl.length) f.push({ fieldLabel: 'Bloqueantes a reportar', fieldType: 'dropdown', multiselect: true, fieldOptions: { values: bl.map((b, i) => ({ option: `B${i + 1}. ${b.archivo}:${b.linea} — ${b.problema}`.slice(0, 150) })) } }); if (sg.length) f.push({ fieldLabel: 'Sugerencias a bloqueante', fieldType: 'dropdown', multiselect: true, fieldOptions: { values: sg.map((s, i) => ({ option: `S${i + 1}. ${s.archivo}:${s.linea} — ${s.detalle}`.slice(0, 150) })) } }); return JSON.stringify(f); })() }}",
+        "options": {
+          "messageButtonLabel": "📝 Decidir",
+          "responseFormButtonLabel": "📝 Enviar",
+          "limitWaitTime": {
+            "values": {
+              "resumeAmount": 3,
+              "resumeUnit": "days"
+            }
+          },
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        896,
+        112
+      ],
+      "id": "e22168eb-2daa-4c85-b45d-c86ccad629cc",
+      "name": "TG Decidir",
+      "webhookId": "5a6914a3-bb5d-482f-816c-061539f95f60",
+      "credentials": {
+        "telegramApi": {
+          "id": "hC0KGlFBIsLx27eN",
+          "name": "TokenDevActivaBot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const b = $('Webhook').item.json.body;\nconst r = b.result || {};\nconst d = $json.data || {};\nconst accion = d['Acción'] || 'Descartar';\n\n// Devuelve los índices elegidos de un campo multiselect (B1. / S1.)\nconst elegidos = (campo, letra) => {\n  let sel = d[campo] || [];\n  if (!Array.isArray(sel)) sel = [sel];\n  return sel\n    .map(o => parseInt((String(o).match(new RegExp('^' + letra + '(\\\\d+)\\\\.')) || [])[1], 10) - 1)\n    .filter(i => i >= 0);\n};\n\nconst bl = r.bloqueantes || [];\nconst sg = Array.isArray(r.sugerencias) ? r.sugerencias : [];\n\nconst bloqueantes = elegidos('Bloqueantes a reportar', 'B').filter(i => bl[i]).map(i => bl[i]);\nconst promovidas = elegidos('Sugerencias a bloqueante', 'S').filter(i => sg[i]).map(i => ({\n  archivo: sg[i].archivo,\n  linea: sg[i].linea,\n  regla: 'Promovida a bloqueante por el TL',\n  problema: sg[i].detalle,\n  solucion: ''\n}));\n\nconst m = String(r.pr_url || '').match(/bitbucket\\.org\\/([^/]+)\\/([^/]+)\\/pull-requests\\/(\\d+)/);\n\nreturn {\n  json: {\n    accion,\n    id: b.id,\n    ticket_key: b.ticket_key,\n    workspace: m ? m[1] : 'fordar',\n    repo: m ? m[2] : String(r.repo || '').split('/').pop(),\n    pr_id: m ? Number(m[3]) : Number(r.pr_id),\n    pr_url: r.pr_url,\n    has_pr: !!m,\n    bloqueantes: [...bloqueantes, ...promovidas]\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1120,
+        112
+      ],
+      "id": "dee965db-1a77-49b6-935e-a5ce15c40c35",
+      "name": "Preparar Desicion"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.accion }}",
+                    "rightValue": "Aprobar PR",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "2868c170-808e-4830-99fe-a6414e8d3bab"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "aprobar"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "c19ee96a-76a8-4a4e-b2b2-4ea4d74ac7a9",
+                    "leftValue": "={{ $json.accion }}",
+                    "rightValue": "Rechazar PR",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "rechazar"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "75045eb0-4d61-4db8-ae19-d4a9891121f7",
+                    "leftValue": "={{ $json.accion }}",
+                    "rightValue": "Descartar",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "descartar"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        1344,
+        96
+      ],
+      "id": "a2d9acd0-d831-4c65-9947-733f65a2e4d0",
+      "name": "Switch1"
+    },
+    {
+      "parameters": {
+        "jsCode": "const p = $('Preparar Desicion').first().json;\nconst bl = p.bloqueantes || [];\nif (!bl.length) return [];\nconst raw = `## 🔴 Code Review — ${bl.length} bloqueante(s)\\n\\n` +\n  bl.map((x, i) =>\n    `**${i + 1}. \\`${x.archivo}:${x.linea}\\`** — ${x.regla}\\n\\n${x.problema}` +\n    (x.solucion ? `\\n\\n**Cómo corregir:** ${x.solucion}` : '')\n  ).join('\\n\\n---\\n\\n');\nreturn [{ json: { raw } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2688,
+        96
+      ],
+      "id": "690372f4-023d-4579-bc12-48137de485bb",
+      "name": "Armar Comentarios"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.bitbucket.org/2.0/repositories/fordar/{{ $('Preparar Desicion').first().json.repo }}/pullrequests/{{ $('Preparar Desicion').first().json.pr_id }}/comments",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ content: { raw: $json.raw } }) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        3040,
+        96
+      ],
+      "id": "0fa33962-b39c-43de-bbec-21c0db9c34d1",
+      "name": "Comentar en PR",
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "Wq9HRuGOc7zc4IzP",
+          "name": "N8NBBDevActiva"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.bitbucket.org/2.0/repositories/fordar/{{ $('Preparar Desicion').first().json.repo }}/pullrequests/{{ $('Preparar Desicion').first().json.pr_id }}/request-changes",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        2608,
+        -80
+      ],
+      "id": "c16e3edb-552b-448f-9a6f-2f8e46b96f7d",
+      "name": "Request changes",
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "Wq9HRuGOc7zc4IzP",
+          "name": "N8NBBDevActiva"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://devactiva.atlassian.net/rest/api/3/issue/{{ $('Preparar Desicion').first().json.ticket_key }}/transitions",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "jiraSoftwareCloudApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\"transition\": {\"id\": \"14\"}}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        3040,
+        -64
+      ],
+      "id": "5c006c2b-68f0-4f48-9a5f-bf4d28094785",
+      "name": "Jira CR REJECTED",
+      "credentials": {
+        "jiraSoftwareCloudApi": {
+          "id": "cmwTUqFec9gp9jLp",
+          "name": "JiraDevActivaCR"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "PUT",
+        "url": "=https://devactiva.atlassian.net/rest/api/3/issue/{{ $('Preparar Desicion').first().json.ticket_key }}/assignee",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "jiraSoftwareCloudApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ accountId: $('Extraer Dev').first().json.dev_account_id }) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        3536,
+        -64
+      ],
+      "id": "09522ec0-2aa2-46c4-a747-54996d60b586",
+      "name": "Asignar al dev",
+      "credentials": {
+        "jiraSoftwareCloudApi": {
+          "id": "cmwTUqFec9gp9jLp",
+          "name": "JiraDevActivaCR"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "dataTableId": {
+          "__rl": true,
+          "value": "xfrUwn1M7VEZmX3W",
+          "mode": "list",
+          "cachedResultName": "cr_jobs",
+          "cachedResultUrl": "/projects/ay1sEloOpwo4pH3l/datatables/xfrUwn1M7VEZmX3W"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyValue": "={{ $('Preparar Desicion').first().json.id }}"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "status": "rejected",
+            "active": "no",
+            "developer_account_id": "={{ $('Extraer Dev').first().json.dev_account_id }}",
+            "developer_name": "={{ $('Extraer Dev').first().json.dev_name }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "ticket_key",
+              "displayName": "ticket_key",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "summary",
+              "displayName": "summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "developer_account_id",
+              "displayName": "developer_account_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "developer_name",
+              "displayName": "developer_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "pr_url",
+              "displayName": "pr_url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "report_md",
+              "displayName": "report_md",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "blockers_json",
+              "displayName": "blockers_json",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "active",
+              "displayName": "active",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        3808,
+        128
+      ],
+      "id": "14243788-33d2-4b9f-a209-f02b4c301e32",
+      "name": "Marcar rechazado"
+    },
+    {
+      "parameters": {
+        "chatId": "1043602295",
+        "text": "=🔴 {{ $('Extraer Dev').first().json.ticket_key }} rechazado\n- {{ $('Extraer Dev').first().json.bloqueantes.length }} bloqueante(s) comentados en {{ $('Extraer Dev').first().json.has_pr ? 'el PR (Request changes marcado)' : 'el ticket de Jira' }}\n- Ticket en CR REJECTED → {{ $('Extraer Dev').first().json.dev_name ? 'asignado a ' + $('Extraer Dev').first().json.dev_name : '⚠️ no encontré al dev, asígnalo a mano' }}\n{{ $('Extraer Dev').first().json.pr_url || 'https://devactiva.atlassian.net/browse/' + $('Extraer Dev').first().json.ticket_key }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        3984,
+        -64
+      ],
+      "id": "a11ff4ac-4de8-47e5-8ac9-4ba59465a210",
+      "name": "TG Rechazado",
+      "webhookId": "fd84bb98-c83e-48ed-b2b9-8dd5a9ba2d3f",
+      "credentials": {
+        "telegramApi": {
+          "id": "hC0KGlFBIsLx27eN",
+          "name": "TokenDevActivaBot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.bitbucket.org/2.0/repositories/fordar/{{ $('Preparar Desicion').first().json.repo }}/pullrequests/{{ $('Preparar Desicion').first().json.pr_id }}/approve",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        1600,
+        -288
+      ],
+      "id": "e37abfc2-ca05-4d61-8a3d-501f8d1caab2",
+      "name": "Approve PR",
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "Wq9HRuGOc7zc4IzP",
+          "name": "N8NBBDevActiva"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://devactiva.atlassian.net/rest/api/3/issue/{{ $('Preparar Desicion').first().json.ticket_key }}/transitions",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "jiraSoftwareCloudApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\"transition\": {\"id\": \"13\"}}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        1824,
+        -288
+      ],
+      "id": "80fb8f71-31ab-475b-a483-d3a5bdc84e9f",
+      "name": "Jira RTD QA",
+      "credentials": {
+        "jiraSoftwareCloudApi": {
+          "id": "cmwTUqFec9gp9jLp",
+          "name": "JiraDevActivaCR"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "PUT",
+        "url": "=https://devactiva.atlassian.net/rest/api/3/issue/{{ $('Preparar Desicion').first().json.ticket_key }}/assignee",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "jiraSoftwareCloudApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\"accountId\": \"712020:475b1fad-de15-47ee-9878-c63aa3b57098\"}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        2048,
+        -288
+      ],
+      "id": "ba790d7b-ec0c-4855-9035-2991394955f9",
+      "name": "Asignar a Ariel",
+      "credentials": {
+        "jiraSoftwareCloudApi": {
+          "id": "cmwTUqFec9gp9jLp",
+          "name": "JiraDevActivaCR"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "dataTableId": {
+          "__rl": true,
+          "value": "xfrUwn1M7VEZmX3W",
+          "mode": "list",
+          "cachedResultName": "cr_jobs",
+          "cachedResultUrl": "/projects/ay1sEloOpwo4pH3l/datatables/xfrUwn1M7VEZmX3W"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyValue": "={{ $('Preparar Desicion').first().json.id }}"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "status": "approved",
+            "active": "no"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "ticket_key",
+              "displayName": "ticket_key",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "summary",
+              "displayName": "summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "developer_account_id",
+              "displayName": "developer_account_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "developer_name",
+              "displayName": "developer_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "pr_url",
+              "displayName": "pr_url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "report_md",
+              "displayName": "report_md",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "blockers_json",
+              "displayName": "blockers_json",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "active",
+              "displayName": "active",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        2512,
+        -288
+      ],
+      "id": "dc84401f-bc18-4d3f-aaed-7be91033a894",
+      "name": "Marcar Aprobado"
+    },
+    {
+      "parameters": {
+        "chatId": "1043602295",
+        "text": "=✅ {{ $('Preparar Desicion').first().json.ticket_key }} aprobado \n- PR aprobado en Bitbucket \n- Ticket en RTD QA → asignado a Ariel Kapustiansky \n{{ $('Preparar Desicion').first().json.pr_url }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        2736,
+        -288
+      ],
+      "id": "61235432-bed2-4301-86a8-28b6c35eb9b2",
+      "name": "TG Aprobado",
+      "webhookId": "d8074943-7ee5-4dfe-a6e3-a3e9acafea57",
+      "credentials": {
+        "telegramApi": {
+          "id": "hC0KGlFBIsLx27eN",
+          "name": "TokenDevActivaBot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "a20541a2-bc86-4278-abd5-64dc56026d94",
+              "leftValue": "={{ $json.has_pr }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1552,
+        -96
+      ],
+      "id": "82f1bcc8-f6e1-480d-8945-faec1aa9bfc1",
+      "name": "Tiene PR?"
+    },
+    {
+      "parameters": {
+        "url": "=https://devactiva.atlassian.net/rest/api/3/issue/{{ $json.ticket_key }}?expand=changelog&fields=reporter",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "jiraSoftwareCloudApi",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        1664,
+        112
+      ],
+      "id": "9dc20997-8b59-474e-bf92-7783d6d9a3be",
+      "name": "Historial Jira",
+      "credentials": {
+        "jiraSoftwareCloudApi": {
+          "id": "cmwTUqFec9gp9jLp",
+          "name": "JiraDevActivaCR"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const p = $('Preparar Desicion').first().json;\nconst yo = '712020:b4333890-07a2-4098-bdbf-d44ab55b58a1';\nconst issue = $json;\nconst hist = (issue.changelog && issue.changelog.histories) || [];\n\nconst movidasACR = hist\n  .filter(h => (h.items || []).some(i => i.field === 'status' && String(i.toString).toUpperCase() === 'CODE REVIEW'))\n  .sort((a, b) => new Date(b.created) - new Date(a.created));\n\nlet dev = (movidasACR.find(h => h.author && h.author.accountId !== yo) || {}).author;\nconst rep = issue.fields && issue.fields.reporter;\nif (!dev && rep && rep.accountId !== yo) dev = rep;\n\nreturn [{ json: { ...p, dev_account_id: dev ? dev.accountId : null, dev_name: dev ? dev.displayName : null } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1888,
+        112
+      ],
+      "id": "2d29394a-408e-427a-90d2-909b0175234a",
+      "name": "Extraer Dev"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "0c112d25-f836-4b25-8566-9f7b233e0ac2",
+              "leftValue": "={{ $json.has_pr }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        2112,
+        112
+      ],
+      "id": "e66fa9ec-e5dd-4b58-998b-fb3853307cbb",
+      "name": "Tiene PR ? Rechazar"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://devactiva.atlassian.net/rest/api/2/issue/{{ $json.ticket_key }}/comment",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "jiraSoftwareCloudApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ body: ($json.bloqueantes || []).length ? `h3. 🔴 Code Review — ${$json.bloqueantes.length} bloqueante(s)\\n\\n` + $json.bloqueantes.map((x, i) => `*${i + 1}. ${x.archivo}:${x.linea}* — ${x.regla}\\n${x.problema}` + (x.solucion ? `\\n*Cómo corregir:* ${x.solucion}` : '')).join('\\n\\n----\\n\\n') : 'h3. 🔴 Code Review: cambios requeridos' }) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        2624,
+        272
+      ],
+      "id": "e1ea8e6c-2405-4919-8c4d-5180861beb40",
+      "name": "Comentar en Jira",
+      "credentials": {
+        "jiraSoftwareCloudApi": {
+          "id": "cmwTUqFec9gp9jLp",
+          "name": "JiraDevActivaCR"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "e4723f29-87e0-4ad0-9b66-d899a214eb8c",
+              "leftValue": "={{ $('Extraer Dev').first().json.dev_account_id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        3232,
+        -64
+      ],
+      "id": "b70a2c7d-8d86-49fc-9d66-76e03999cd25",
+      "name": "Hay Dev?"
+    },
+    {
+      "parameters": {
+        "method": "DELETE",
+        "url": "=https://api.bitbucket.org/2.0/repositories/fordar/{{ $json.repo }}/pullrequests/{{ $json.pr_id }}/request-changes",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        1408,
+        -288
+      ],
+      "id": "a9c704c6-48e4-4abe-b4e5-03ba4bc3fc50",
+      "name": "Quitar request changes",
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "Wq9HRuGOc7zc4IzP",
+          "name": "N8NBBDevActiva"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "method": "PUT",
+        "url": "=https://devactiva.atlassian.net/rest/api/3/issue/{{ $('Preparar Desicion').first().json.ticket_key }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "jiraSoftwareCloudApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ fields: { duedate: $now.setZone('America/Argentina/Buenos_Aires').toFormat('yyyy-MM-dd') } }) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        2240,
+        -288
+      ],
+      "id": "e8ca8a27-a518-4e24-9169-e9cc8d3b7ec1",
+      "name": "Fecha vencimiento CR",
+      "credentials": {
+        "jiraSoftwareCloudApi": {
+          "id": "cmwTUqFec9gp9jLp",
+          "name": "JiraDevActivaCR"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Guardar resultado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Guardar resultado": {
+      "main": [
+        [
+          {
+            "node": "Responder Ok",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Responder Ok": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "TG Error",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "TG Decidir",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Marcar Descartado": {
+      "main": [
+        [
+          {
+            "node": "TG Descartado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "TG Decidir": {
+      "main": [
+        [
+          {
+            "node": "Preparar Desicion",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Preparar Desicion": {
+      "main": [
+        [
+          {
+            "node": "Switch1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch1": {
+      "main": [
+        [
+          {
+            "node": "Tiene PR?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Historial Jira",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Marcar Descartado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Armar Comentarios": {
+      "main": [
+        [
+          {
+            "node": "Comentar en PR",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Request changes": {
+      "main": [
+        [
+          {
+            "node": "Jira CR REJECTED",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Jira CR REJECTED": {
+      "main": [
+        [
+          {
+            "node": "Hay Dev?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Asignar al dev": {
+      "main": [
+        [
+          {
+            "node": "Marcar rechazado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Marcar rechazado": {
+      "main": [
+        [
+          {
+            "node": "TG Rechazado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Approve PR": {
+      "main": [
+        [
+          {
+            "node": "Jira RTD QA",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Jira RTD QA": {
+      "main": [
+        [
+          {
+            "node": "Asignar a Ariel",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Asignar a Ariel": {
+      "main": [
+        [
+          {
+            "node": "Fecha vencimiento CR",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Marcar Aprobado": {
+      "main": [
+        [
+          {
+            "node": "TG Aprobado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tiene PR?": {
+      "main": [
+        [
+          {
+            "node": "Quitar request changes",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Jira RTD QA",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Historial Jira": {
+      "main": [
+        [
+          {
+            "node": "Extraer Dev",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extraer Dev": {
+      "main": [
+        [
+          {
+            "node": "Tiene PR ? Rechazar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tiene PR ? Rechazar": {
+      "main": [
+        [
+          {
+            "node": "Request changes",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Armar Comentarios",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Comentar en Jira",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Comentar en Jira": {
+      "main": [
+        [
+          {
+            "node": "Jira CR REJECTED",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Hay Dev?": {
+      "main": [
+        [
+          {
+            "node": "Asignar al dev",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Marcar rechazado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Quitar request changes": {
+      "main": [
+        [
+          {
+            "node": "Approve PR",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fecha vencimiento CR": {
+      "main": [
+        [
+          {
+            "node": "Marcar Aprobado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "d63efd18-c724-4951-8ad0-4cb752dc23a6",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "abda80ae0fb86c9b9efc9ed528d300d884d999bfc3ec9716d3ffac03ebb6417e"
+  },
+  "nodeGroups": [],
+  "id": "qLgAAMz8uXS6tRwQ",
+  "tags": []
+}

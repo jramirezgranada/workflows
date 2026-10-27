@@ -1,0 +1,426 @@
+{
+  "name": "2 - API Worker",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "cr/next-job",
+        "authentication": "headerAuth",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.2,
+      "position": [
+        -208,
+        -16
+      ],
+      "id": "fd4f47ed-559b-4c39-b567-475cfef25337",
+      "name": "Webhook",
+      "webhookId": "d815ea06-c701-4857-9377-a04afeabe545",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "30LaQXYCdzZhbzet",
+          "name": "LocaldesaToken"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "xfrUwn1M7VEZmX3W",
+          "mode": "list",
+          "cachedResultName": "cr_jobs",
+          "cachedResultUrl": "/projects/ay1sEloOpwo4pH3l/datatables/xfrUwn1M7VEZmX3W"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "status",
+              "keyValue": "pending"
+            },
+            {
+              "keyName": "active",
+              "keyValue": "yes"
+            }
+          ]
+        },
+        "limit": 1
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        224,
+        0
+      ],
+      "id": "da3d2737-4e88-43e2-913d-e47804b26a9e",
+      "name": "Buscar Pendientes",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "5ba2c3d1-3b73-4b05-8768-b59ec90346ed",
+              "leftValue": "={{ $json.ticket_key }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        448,
+        0
+      ],
+      "id": "acc63991-3fb6-4a2a-9fd0-ee11a90e3fa9",
+      "name": "Hay Trabajo?"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "dataTableId": {
+          "__rl": true,
+          "value": "xfrUwn1M7VEZmX3W",
+          "mode": "list",
+          "cachedResultName": "cr_jobs",
+          "cachedResultUrl": "/projects/ay1sEloOpwo4pH3l/datatables/xfrUwn1M7VEZmX3W"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyValue": "={{ $json.id }}"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "status": "running"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "ticket_key",
+              "displayName": "ticket_key",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "summary",
+              "displayName": "summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "developer_account_id",
+              "displayName": "developer_account_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "developer_name",
+              "displayName": "developer_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "pr_url",
+              "displayName": "pr_url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "report_md",
+              "displayName": "report_md",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "blockers_json",
+              "displayName": "blockers_json",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "active",
+              "displayName": "active",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        656,
+        -192
+      ],
+      "id": "b567af8b-c3ce-4b00-8e1f-c98c97eae373",
+      "name": "Marcar Running"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ job: { id: $json.id, ticket_key: $json.ticket_key } }) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        880,
+        -192
+      ],
+      "id": "f63e4f13-1507-489c-a486-62cf39b953e7",
+      "name": "Responder Job"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "  {\"job\": null}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        656,
+        96
+      ],
+      "id": "9c79615a-4506-4466-8d01-c03de64c81be",
+      "name": "Vacio"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "95ffe682-f1ec-4d55-af6a-c8a761873675",
+              "leftValue": "={{ $json.query.ticket }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        0,
+        -16
+      ],
+      "id": "3adcbab5-887d-409d-8826-e8e719391e49",
+      "name": "¿Ticket específico?"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "xfrUwn1M7VEZmX3W",
+          "mode": "list",
+          "cachedResultName": "cr_jobs",
+          "cachedResultUrl": "/projects/ay1sEloOpwo4pH3l/datatables/xfrUwn1M7VEZmX3W"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "ticket_key",
+              "keyValue": "={{ $json.query.ticket.toUpperCase() }}"
+            },
+            {
+              "keyName": "status",
+              "keyValue": "pending"
+            },
+            {
+              "keyName": "active",
+              "keyValue": "yes"
+            }
+          ]
+        },
+        "limit": 1
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        208,
+        -176
+      ],
+      "id": "e9cc5600-ef08-4b95-afe6-67351f80a33b",
+      "name": "Buscar ticket",
+      "alwaysOutputData": true
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "¿Ticket específico?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar Pendientes": {
+      "main": [
+        [
+          {
+            "node": "Hay Trabajo?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Hay Trabajo?": {
+      "main": [
+        [
+          {
+            "node": "Marcar Running",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Vacio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Marcar Running": {
+      "main": [
+        [
+          {
+            "node": "Responder Job",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "¿Ticket específico?": {
+      "main": [
+        [
+          {
+            "node": "Buscar ticket",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Buscar Pendientes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar ticket": {
+      "main": [
+        [
+          {
+            "node": "Hay Trabajo?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "c7a25d7c-8820-4f3d-a0d6-23668f505a93",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "abda80ae0fb86c9b9efc9ed528d300d884d999bfc3ec9716d3ffac03ebb6417e"
+  },
+  "nodeGroups": [],
+  "id": "54iaUZCbWylBX8W6",
+  "tags": []
+}

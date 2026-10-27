@@ -1,0 +1,897 @@
+{
+  "name": "5. PRE RTD - Procesar",
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "ticket_key"
+            },
+            {
+              "name": "summary"
+            },
+            {
+              "name": "row_id",
+              "type": "number"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "b772f600-5c6c-4896-9358-e2ca1679eb3f",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "url": "=https://devactiva.atlassian.net/rest/api/3/issue/{{ $json.ticket_key }}?fields=attachment,summary,reporter&expand=changelog",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "jiraSoftwareCloudApi",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        224,
+        0
+      ],
+      "id": "af44c096-4e25-4ce8-8747-7fe014e8ab76",
+      "name": "Leer Ticket",
+      "credentials": {
+        "jiraSoftwareCloudApi": {
+          "id": "cmwTUqFec9gp9jLp",
+          "name": "JiraDevActivaCR"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const t = $('When Executed by Another Workflow').item.json;\nconst issue = $json;\nconst yo = '712020:b4333890-07a2-4098-bdbf-d44ab55b58a1';\n\n// 1. Buscar el DDP a master entre los adjuntos\nconst adjuntos = (issue.fields.attachment || []).map(a => a.filename);\nconst ddp = adjuntos.find(f => /^DDP[_\\- ]?(PRD|PROD|MASTER)/i.test(f)) || null;\n\n// 2. Dev: el último (que no seas tú) que movió el ticket a CODE REVIEW; si no, el reporter\nconst hist = (issue.changelog && issue.changelog.histories) || [];\nconst movidas = hist\n  .filter(h => (h.items || []).some(i => i.field === 'status' && String(i.toString).toUpperCase() === 'CODE REVIEW'))\n  .sort((a, b) => new Date(b.created) - new Date(a.created));\nlet dev = (movidas.find(h => h.author && h.author.accountId !== yo) || {}).author;\nconst rep = issue.fields.reporter;\nif (!dev && rep && rep.accountId !== yo) dev = rep;\n\nreturn {\n  json: {\n    ticket_key: t.ticket_key,\n    summary: issue.fields.summary,\n    row_id: t.row_id,\n    issue_id: issue.id,\n    has_ddp: !!ddp,\n    ddp_file: ddp,\n    adjuntos,\n    dev_name: dev ? dev.displayName : null\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        448,
+        0
+      ],
+      "id": "f86f335b-76ec-4549-8cf0-d5c44006cd5a",
+      "name": "Analizar Ticket"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "5003992d-0b87-4fbf-a9d8-be6a2f73ad5d",
+              "leftValue": "={{ $json.has_ddp }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        672,
+        0
+      ],
+      "id": "b450e806-4887-4d9e-a83a-fbd8b8bb16a9",
+      "name": "Tiene DDP ?"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "dataTableId": {
+          "__rl": true,
+          "value": "oSgnGihZuRgsxhSH",
+          "mode": "list",
+          "cachedResultName": "prertd_jobs",
+          "cachedResultUrl": "/projects/ay1sEloOpwo4pH3l/datatables/oSgnGihZuRgsxhSH"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyValue": "={{ $json.row_id }}"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "status": "sin ddp",
+            "dev_name": "={{ $json.dev_name }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "ticket_key",
+              "displayName": "ticket_key",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "summary",
+              "displayName": "summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "active",
+              "displayName": "active",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "ddp_file",
+              "displayName": "ddp_file",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "prs_json",
+              "displayName": "prs_json",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "dev_name",
+              "displayName": "dev_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        880,
+        208
+      ],
+      "id": "fbb1f747-1c2e-490f-8f3f-467f8632cdaa",
+      "name": "Marcar sin DDP"
+    },
+    {
+      "parameters": {
+        "chatId": "1043602295",
+        "text": "=⚠️ {{ $('Analizar Ticket').item.json.ticket_key }} en PRE RTD sin DDP a master\nDev: {{ $('Analizar Ticket').item.json.dev_name || 'no identificado' }}\nhttps://devactiva.atlassian.net/browse/{{ $('Analizar Ticket').item.json.ticket_key }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1104,
+        208
+      ],
+      "id": "987c1bb2-22e9-4b0e-abb2-a8bda0293681",
+      "name": "TG Sin DDP",
+      "webhookId": "181914ed-4205-4c5a-b19a-8d03d26d089b",
+      "credentials": {
+        "telegramApi": {
+          "id": "hC0KGlFBIsLx27eN",
+          "name": "TokenDevActivaBot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "=https://devactiva.atlassian.net/rest/dev-status/latest/issue/detail?issueId={{ $json.issue_id }}&applicationType=bitbucket&dataType=pullrequest",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "jiraSoftwareCloudApi",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        896,
+        -96
+      ],
+      "id": "da42ac2b-ee3b-4be8-ae1e-907c19151419",
+      "name": "Buscar PRs",
+      "credentials": {
+        "jiraSoftwareCloudApi": {
+          "id": "cmwTUqFec9gp9jLp",
+          "name": "JiraDevActivaCR"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const a = $('Analizar Ticket').item.json;\nconst todos = ($json.detail || []).flatMap(d => d.pullRequests || []);\n\nconst prs = todos\n  .filter(p => p.source && p.source.branch === 'stage'\n            && p.destination && p.destination.branch === 'master'\n            && p.status === 'OPEN')\n  .map(p => {\n    const m = String(p.url).match(/bitbucket\\.org\\/([^/]+)\\/([^/]+)\\/pull-requests\\/(\\d+)/);\n    return {\n      repo: p.repositoryName || (m ? m[2] : ''),\n      name: p.name,\n      url: p.url,\n      api: m ? `https://api.bitbucket.org/2.0/repositories/${encodeURIComponent(m[1])}/${encodeURIComponent(m[2])}/pullrequests/${m[3]}` : null\n    };\n  })\n  .filter(p => p.api);\n\nreturn { json: { ...a, prs } };$input.item;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1120,
+        -96
+      ],
+      "id": "6e546695-eed3-4a9d-b3ef-78297aabbc9d",
+      "name": "Filtrar PRs"
+    },
+    {
+      "parameters": {
+        "operation": "sendAndWait",
+        "chatId": "1043602295",
+        "message": "={{ (() => { const j = $json; let t = `🚀 ${j.ticket_key} en PRE RTD\\n${j.summary}\\n\\n📄 DDP: ${j.ddp_file}\\n\\n`; t += j.prs.length ? `🔀 PRs stage → master (${j.prs.length}):\\n` + j.prs.map(p => `• ${p.repo}\\n  https://bitbucket.org/${p.repo}/pull-requests/${p.api.split('/').pop()}`).join('\\n') : '🔀 Sin PRs stage → master (solo DDP)'; t += `\\n\\nSi apruebas: ${j.prs.length ? 'Approve de los PRs, ' : ''}ticket a RTD y asignado a Ariel.`; return t.replace(/([_*`\\[])/g, '\\\\$1'); })() }}",
+        "approvalOptions": {
+          "values": {
+            "approvalType": "double",
+            "approveLabel": "✅ Aprobar",
+            "disapproveLabel": "❌ Descartar"
+          }
+        },
+        "options": {
+          "limitWaitTime": {
+            "values": {
+              "resumeAmount": 3,
+              "resumeUnit": "days"
+            }
+          },
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1344,
+        -96
+      ],
+      "id": "1ea7bd1f-7163-4170-aee4-ee7df960a9f2",
+      "name": "TG Decidir PRE RTD",
+      "webhookId": "eec6c778-633a-4a2b-855d-c0bf2e08aca1",
+      "credentials": {
+        "telegramApi": {
+          "id": "hC0KGlFBIsLx27eN",
+          "name": "TokenDevActivaBot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "1627ba6e-d401-45ec-a1ed-91e2ed4e1701",
+              "leftValue": "={{ $json.data.approved }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1632,
+        -96
+      ],
+      "id": "d84c8a59-0f3c-4c46-9671-e5dd165cf1cd",
+      "name": "¿Aprobado PRE RTD?"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "dataTableId": {
+          "__rl": true,
+          "value": "oSgnGihZuRgsxhSH",
+          "mode": "list",
+          "cachedResultName": "prertd_jobs",
+          "cachedResultUrl": "/projects/ay1sEloOpwo4pH3l/datatables/oSgnGihZuRgsxhSH"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyValue": "={{ $('Filtrar PRs').first().json.row_id }}"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "status": "discarded"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "ticket_key",
+              "displayName": "ticket_key",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "summary",
+              "displayName": "summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "active",
+              "displayName": "active",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "ddp_file",
+              "displayName": "ddp_file",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "prs_json",
+              "displayName": "prs_json",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "dev_name",
+              "displayName": "dev_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        1936,
+        80
+      ],
+      "id": "e35b8651-4ab8-4d5b-94bf-dbd85acb8504",
+      "name": "Marcar descartado PRE RTD"
+    },
+    {
+      "parameters": {
+        "jsCode": "return $('Filtrar PRs').first().json.prs.map(p => ({ json: p }));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1968,
+        -224
+      ],
+      "id": "a6026741-4a15-428c-9467-423477e2d45b",
+      "name": "PRs a aprobar"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.api }}/approve",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        2240,
+        -352
+      ],
+      "id": "a9086ab5-a40d-45b1-8a88-a94714657a13",
+      "name": "Approve PR master",
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "Wq9HRuGOc7zc4IzP",
+          "name": "N8NBBDevActiva"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://devactiva.atlassian.net/rest/api/3/issue/{{ $('Filtrar PRs').first().json.ticket_key }}/transitions",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "jiraSoftwareCloudApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\"transition\": {\"id\": \"26\"}}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        2224,
+        -80
+      ],
+      "id": "ba20239c-fe37-493b-9457-d6a0070e4df2",
+      "name": "Jira RTD",
+      "credentials": {
+        "jiraSoftwareCloudApi": {
+          "id": "cmwTUqFec9gp9jLp",
+          "name": "JiraDevActivaCR"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "PUT",
+        "url": "=https://devactiva.atlassian.net/rest/api/3/issue/{{ $('Filtrar PRs').first().json.ticket_key }}/assignee",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "jiraSoftwareCloudApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\"accountId\": \"712020:475b1fad-de15-47ee-9878-c63aa3b57098\"}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        2448,
+        -80
+      ],
+      "id": "ad796461-270d-4af8-b403-d83e1f5818b4",
+      "name": "Asignar a Ariel PRE RTD",
+      "credentials": {
+        "jiraSoftwareCloudApi": {
+          "id": "cmwTUqFec9gp9jLp",
+          "name": "JiraDevActivaCR"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "PUT",
+        "url": "=https://devactiva.atlassian.net/rest/api/3/issue/{{ $('Filtrar PRs').first().json.ticket_key }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "jiraSoftwareCloudApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ fields: { duedate: $now.setZone('America/Argentina/Buenos_Aires').toFormat('yyyy-MM-dd') } }) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        2672,
+        -80
+      ],
+      "id": "34f43b4f-3c12-454b-8e48-f2bb27c9695b",
+      "name": "Fecha de Vencimiento",
+      "credentials": {
+        "jiraSoftwareCloudApi": {
+          "id": "cmwTUqFec9gp9jLp",
+          "name": "JiraDevActivaCR"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "dataTableId": {
+          "__rl": true,
+          "value": "oSgnGihZuRgsxhSH",
+          "mode": "list",
+          "cachedResultName": "prertd_jobs",
+          "cachedResultUrl": "/projects/ay1sEloOpwo4pH3l/datatables/oSgnGihZuRgsxhSH"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyValue": "={{ $('Filtrar PRs').first().json.row_id }}"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "status": "approved",
+            "active": "no"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "ticket_key",
+              "displayName": "ticket_key",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "summary",
+              "displayName": "summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "active",
+              "displayName": "active",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "ddp_file",
+              "displayName": "ddp_file",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "prs_json",
+              "displayName": "prs_json",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "dev_name",
+              "displayName": "dev_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        2896,
+        -80
+      ],
+      "id": "15e618be-a6c0-49ca-9a01-9c8e6b132c13",
+      "name": "Marcar Aprobado PRE RTD"
+    },
+    {
+      "parameters": {
+        "chatId": "1043602295",
+        "text": "=✅ {{ $('Filtrar PRs').first().json.ticket_key }} → RTD, asignado a Ariel \n📅 Vencimiento: {{ $now.setZone('America/Bogota').toFormat('yyyy-MM-dd') }} \n🔀 {{ $('Filtrar PRs').first().json.prs.length }} PR(s) stage→master aprobados",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        3120,
+        -80
+      ],
+      "id": "454c3022-46cc-4e9f-bb36-cf57aaed6605",
+      "name": "TG RTD Aprobado",
+      "webhookId": "03eb9e61-bcb4-4090-8331-58947c14691b",
+      "credentials": {
+        "telegramApi": {
+          "id": "hC0KGlFBIsLx27eN",
+          "name": "TokenDevActivaBot"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Leer Ticket",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Leer Ticket": {
+      "main": [
+        [
+          {
+            "node": "Analizar Ticket",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analizar Ticket": {
+      "main": [
+        [
+          {
+            "node": "Tiene DDP ?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tiene DDP ?": {
+      "main": [
+        [
+          {
+            "node": "Buscar PRs",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Marcar sin DDP",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Marcar sin DDP": {
+      "main": [
+        [
+          {
+            "node": "TG Sin DDP",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar PRs": {
+      "main": [
+        [
+          {
+            "node": "Filtrar PRs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filtrar PRs": {
+      "main": [
+        [
+          {
+            "node": "TG Decidir PRE RTD",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "TG Sin DDP": {
+      "main": [
+        []
+      ]
+    },
+    "¿Aprobado PRE RTD?": {
+      "main": [
+        [
+          {
+            "node": "PRs a aprobar",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Jira RTD",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Marcar descartado PRE RTD",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PRs a aprobar": {
+      "main": [
+        [
+          {
+            "node": "Approve PR master",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Jira RTD": {
+      "main": [
+        [
+          {
+            "node": "Asignar a Ariel PRE RTD",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Asignar a Ariel PRE RTD": {
+      "main": [
+        [
+          {
+            "node": "Fecha de Vencimiento",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fecha de Vencimiento": {
+      "main": [
+        [
+          {
+            "node": "Marcar Aprobado PRE RTD",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Marcar Aprobado PRE RTD": {
+      "main": [
+        [
+          {
+            "node": "TG RTD Aprobado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "TG Decidir PRE RTD": {
+      "main": [
+        [
+          {
+            "node": "¿Aprobado PRE RTD?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "aebbad85-f39b-4b02-90a4-a1be67ab124e",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "abda80ae0fb86c9b9efc9ed528d300d884d999bfc3ec9716d3ffac03ebb6417e"
+  },
+  "nodeGroups": [],
+  "id": "Bo7gydqEyeuZDXjj",
+  "tags": []
+}

@@ -1,0 +1,574 @@
+{
+  "name": "4. PRE RTD Detectar",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 9-15/2 * * 1-5"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        0,
+        0
+      ],
+      "id": "15ae0acf-8fb1-48f8-97e9-23a64ca2de70",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "returnAll": true,
+        "options": {
+          "fields": "summary,issuelinks",
+          "jql": "=assignee = currentUser() AND status = \"PRE-RTD\""
+        }
+      },
+      "type": "n8n-nodes-base.jira",
+      "typeVersion": 1,
+      "position": [
+        224,
+        0
+      ],
+      "id": "78ec4cbe-864a-4732-97fc-1570737f16a9",
+      "name": "Jira PRE RTD",
+      "alwaysOutputData": true,
+      "credentials": {
+        "jiraSoftwareCloudApi": {
+          "id": "cmwTUqFec9gp9jLp",
+          "name": "JiraDevActivaCR"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "65783d41-f9a3-490a-9a7e-23da44b3cbad",
+              "leftValue": "={{ $json.key }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.3,
+      "position": [
+        448,
+        0
+      ],
+      "id": "f8a861d0-9f85-4335-b920-eaf46771d925",
+      "name": "Tiene ticket PRE RTD"
+    },
+    {
+      "parameters": {
+        "operation": "rowNotExists",
+        "dataTableId": {
+          "__rl": true,
+          "value": "oSgnGihZuRgsxhSH",
+          "mode": "list",
+          "cachedResultName": "prertd_jobs",
+          "cachedResultUrl": "/projects/ay1sEloOpwo4pH3l/datatables/oSgnGihZuRgsxhSH"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "ticket_key",
+              "keyValue": "={{ $json.key }}"
+            },
+            {
+              "keyName": "active",
+              "keyValue": "yes"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        672,
+        0
+      ],
+      "id": "096d781d-1a1d-403b-b8f2-c3be683bc330",
+      "name": "Es nuevo PRE RTD"
+    },
+    {
+      "parameters": {
+        "dataTableId": {
+          "__rl": true,
+          "value": "oSgnGihZuRgsxhSH",
+          "mode": "list",
+          "cachedResultName": "prertd_jobs",
+          "cachedResultUrl": "/projects/ay1sEloOpwo4pH3l/datatables/oSgnGihZuRgsxhSH"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "ticket_key": "={{ $json.key }}",
+            "summary": "={{ $json.fields.summary }}",
+            "status": "waiting",
+            "active": "yes"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "ticket_key",
+              "displayName": "ticket_key",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "summary",
+              "displayName": "summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "active",
+              "displayName": "active",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "ddp_file",
+              "displayName": "ddp_file",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "prs_json",
+              "displayName": "prs_json",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "dev_name",
+              "displayName": "dev_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        1472,
+        112
+      ],
+      "id": "efd2ff6c-9f37-4d96-bddf-0188e9f80cbd",
+      "name": "Insertar PRE RTD"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "Bo7gydqEyeuZDXjj",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/Bo7gydqEyeuZDXjj",
+          "cachedResultName": "5. PRE RTD - Procesar"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "ticket_key": "={{ $json.ticket_key }}",
+            "summary": "={{ $json.summary }}",
+            "row_id": "={{ $json.id }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "ticket_key",
+              "displayName": "ticket_key",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "summary",
+              "displayName": "summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "row_id",
+              "displayName": "row_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "number",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "mode": "each",
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.4,
+      "position": [
+        1760,
+        112
+      ],
+      "id": "d803ecbf-1c5d-4e87-8fd7-f41aafb9666b",
+      "name": "Procesar PRE RTD"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const key = $json.key;\nconst relaciones = ($json.fields?.issuelinks || [])\n  .filter(l => /implement/i.test(`${l.type?.inward} ${l.type?.outward}`))\n  .map(l => l.outwardIssue\n    ? `${key} implementa ${l.outwardIssue.key}`\n    : `${key} implementado por ${l.inwardIssue.key}`);\n\nreturn { json: { ...$json, has_impl: relaciones.length > 0, relaciones } };"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        912,
+        0
+      ],
+      "id": "dd86ed28-b86f-46cd-8475-3c17d35f915b",
+      "name": "Analizar vínculos PRE RTD"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "9c6e3e51-387e-496f-86cb-05cd88ddf79e",
+              "leftValue": "={{ $json.has_impl }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1136,
+        0
+      ],
+      "id": "db415a49-39d4-4026-8734-3c3af340a041",
+      "name": "Tiene Implements PRE RTD?"
+    },
+    {
+      "parameters": {
+        "dataTableId": {
+          "__rl": true,
+          "value": "oSgnGihZuRgsxhSH",
+          "mode": "list",
+          "cachedResultName": "prertd_jobs",
+          "cachedResultUrl": "/projects/ay1sEloOpwo4pH3l/datatables/oSgnGihZuRgsxhSH"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "ticket_key": "={{ $json.key }}",
+            "summary": "={{ $json.fields.summary }}",
+            "status": "manual",
+            "active": "yes"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "ticket_key",
+              "displayName": "ticket_key",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "summary",
+              "displayName": "summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "active",
+              "displayName": "active",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "ddp_file",
+              "displayName": "ddp_file",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "prs_json",
+              "displayName": "prs_json",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "dev_name",
+              "displayName": "dev_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        1456,
+        -112
+      ],
+      "id": "dad7b890-cb6e-42af-8537-76146c377d1f",
+      "name": "Insertar manual PRE RTD"
+    },
+    {
+      "parameters": {
+        "chatId": "1043602295",
+        "text": "=🔗 {{ $('Analizar vínculos PRE RTD').item.json.relaciones.join('\\n🔗 ') }} \nPRE RTD: revisar manualmente. \nhttps://devactiva.atlassian.net/browse/{{ $('Analizar vínculos PRE RTD').item.json.key }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1760,
+        -112
+      ],
+      "id": "de831943-4b85-47b0-91a7-deb7c306f0bd",
+      "name": "Send a text message",
+      "webhookId": "c339c78d-b0d9-4088-8cb3-deaab1c43553",
+      "credentials": {
+        "telegramApi": {
+          "id": "hC0KGlFBIsLx27eN",
+          "name": "TokenDevActivaBot"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Jira PRE RTD",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Jira PRE RTD": {
+      "main": [
+        [
+          {
+            "node": "Tiene ticket PRE RTD",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tiene ticket PRE RTD": {
+      "main": [
+        [
+          {
+            "node": "Es nuevo PRE RTD",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Es nuevo PRE RTD": {
+      "main": [
+        [
+          {
+            "node": "Analizar vínculos PRE RTD",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insertar PRE RTD": {
+      "main": [
+        [
+          {
+            "node": "Procesar PRE RTD",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analizar vínculos PRE RTD": {
+      "main": [
+        [
+          {
+            "node": "Tiene Implements PRE RTD?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tiene Implements PRE RTD?": {
+      "main": [
+        [
+          {
+            "node": "Insertar manual PRE RTD",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Insertar PRE RTD",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insertar manual PRE RTD": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "1af3c579-c8f8-49fa-b71d-6204a9e43b00",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "abda80ae0fb86c9b9efc9ed528d300d884d999bfc3ec9716d3ffac03ebb6417e"
+  },
+  "nodeGroups": [],
+  "id": "H4865H0bFfBsrCnh",
+  "tags": []
+}

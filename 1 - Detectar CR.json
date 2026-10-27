@@ -1,0 +1,796 @@
+{
+  "name": "1 - Detectar CR",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -96,
+        0
+      ],
+      "id": "f12980d4-c451-4557-be2c-98f8af76c098",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "returnAll": true,
+        "options": {
+          "fields": "summary,status,assignee,reporter,issuelinks",
+          "jql": "assignee = currentUser() AND status = \"CODE REVIEW\""
+        }
+      },
+      "type": "n8n-nodes-base.jira",
+      "typeVersion": 1,
+      "position": [
+        224,
+        0
+      ],
+      "id": "00a5180e-d9df-4e7c-8195-301a9bff252a",
+      "name": "GetIssues",
+      "alwaysOutputData": true,
+      "credentials": {
+        "jiraSoftwareCloudApi": {
+          "id": "cmwTUqFec9gp9jLp",
+          "name": "JiraDevActivaCR"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "rowNotExists",
+        "dataTableId": {
+          "__rl": true,
+          "value": "xfrUwn1M7VEZmX3W",
+          "mode": "list",
+          "cachedResultName": "cr_jobs",
+          "cachedResultUrl": "/projects/ay1sEloOpwo4pH3l/datatables/xfrUwn1M7VEZmX3W"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "ticket_key",
+              "keyValue": "={{ $json.key }}"
+            },
+            {
+              "keyName": "active",
+              "keyValue": "yes"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        672,
+        0
+      ],
+      "id": "a91732b5-b7bf-4785-9260-4384fc1109dd",
+      "name": "If row does not exist"
+    },
+    {
+      "parameters": {
+        "dataTableId": {
+          "__rl": true,
+          "value": "xfrUwn1M7VEZmX3W",
+          "mode": "list",
+          "cachedResultName": "cr_jobs",
+          "cachedResultUrl": "/projects/ay1sEloOpwo4pH3l/datatables/xfrUwn1M7VEZmX3W"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "ticket_key": "={{ $json.key }}",
+            "summary": "={{ $json.fields.summary }}",
+            "status": "pending",
+            "active": "yes"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "ticket_key",
+              "displayName": "ticket_key",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "summary",
+              "displayName": "summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "developer_account_id",
+              "displayName": "developer_account_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "developer_name",
+              "displayName": "developer_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "pr_url",
+              "displayName": "pr_url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "report_md",
+              "displayName": "report_md",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "blockers_json",
+              "displayName": "blockers_json",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "active",
+              "displayName": "active",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        1408,
+        112
+      ],
+      "id": "50186d7e-a695-482a-ae59-ac283de74dd7",
+      "name": "Insert row"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 7-16/2 * * 1-5"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        -16,
+        -224
+      ],
+      "id": "4c5ae19a-f400-4a1a-8490-8d42656e2ad3",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "chatId": "1043602295",
+        "text": "=📥 CR: {{ $('Insert row').all().length }} ticket(s) nuevo(s) en cola\n{{ $('Insert row').all().map(i => `• ${i.json.ticket_key} — ${i.json.summary}`).join('\\n').replace(/([_*`\\[])/g, '\\\\$1') }}\n",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1632,
+        112
+      ],
+      "id": "a7445397-3da0-4fc0-968c-eebd4e44749e",
+      "name": "TG Nuevos",
+      "webhookId": "19f44aa7-c3c1-47f9-9edd-f0c82c8b1f12",
+      "executeOnce": true,
+      "credentials": {
+        "telegramApi": {
+          "id": "hC0KGlFBIsLx27eN",
+          "name": "TokenDevActivaBot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "xfrUwn1M7VEZmX3W",
+          "mode": "list",
+          "cachedResultName": "cr_jobs",
+          "cachedResultUrl": "/projects/ay1sEloOpwo4pH3l/datatables/xfrUwn1M7VEZmX3W"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "active",
+              "keyValue": "yes"
+            }
+          ]
+        },
+        "returnAll": true
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        208,
+        -224
+      ],
+      "id": "7b188894-46a6-4797-8048-d9c58b41dd93",
+      "name": "Filas Activas",
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const enCR = new Set($('GetIssues').all().map(i => i.json.key).filter(Boolean));\nreturn $input.all().filter(r => r.json.ticket_key && !enCR.has(r.json.ticket_key));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        432,
+        -224
+      ],
+      "id": "a4bd7ebb-3e16-4eb4-ad4a-1073de0d918f",
+      "name": "Fuera de CR"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "dataTableId": {
+          "__rl": true,
+          "value": "xfrUwn1M7VEZmX3W",
+          "mode": "list",
+          "cachedResultName": "cr_jobs",
+          "cachedResultUrl": "/projects/ay1sEloOpwo4pH3l/datatables/xfrUwn1M7VEZmX3W"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyValue": "={{ $json.id }}"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "active": "no"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "ticket_key",
+              "displayName": "ticket_key",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "summary",
+              "displayName": "summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "developer_account_id",
+              "displayName": "developer_account_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "developer_name",
+              "displayName": "developer_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "pr_url",
+              "displayName": "pr_url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "report_md",
+              "displayName": "report_md",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "blockers_json",
+              "displayName": "blockers_json",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "active",
+              "displayName": "active",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        656,
+        -224
+      ],
+      "id": "ccf486d1-5f3b-4b70-9124-dc13cd4355c9",
+      "name": "Desactivar"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "31275445-87f6-4e5f-a939-0bab173fedbf",
+              "leftValue": "={{ $json.key }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.3,
+      "position": [
+        432,
+        0
+      ],
+      "id": "5665e282-6c5f-4d1c-bd94-3253f75d4c8f",
+      "name": "Tiene Ticket"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const key = $json.key;\nconst relaciones = ($json.fields?.issuelinks || [])\n  .filter(l => /implement/i.test(`${l.type?.inward} ${l.type?.outward}`))\n  .map(l => l.outwardIssue\n    ? `${key} implementa ${l.outwardIssue.key}`\n    : `${key} implementado por ${l.inwardIssue.key}`);\n\nreturn { json: { ...$json, has_impl: relaciones.length > 0, relaciones } };"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        880,
+        0
+      ],
+      "id": "6c8e850d-3bf1-423f-b7a9-305f36247206",
+      "name": "Analizar Vinculos CR"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "74be6b5f-0323-4e4c-9768-91761c29650d",
+              "leftValue": "={{ $json.has_impl }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1104,
+        0
+      ],
+      "id": "d55bd3e6-94ac-420c-89dd-00619d766fdd",
+      "name": "Tiene Implement?"
+    },
+    {
+      "parameters": {
+        "dataTableId": {
+          "__rl": true,
+          "value": "xfrUwn1M7VEZmX3W",
+          "mode": "list",
+          "cachedResultName": "cr_jobs",
+          "cachedResultUrl": "/projects/ay1sEloOpwo4pH3l/datatables/xfrUwn1M7VEZmX3W"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "ticket_key": "={{ $json.key }}",
+            "summary": "={{ $json.fields.summary }}",
+            "status": "manual",
+            "active": "yes"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "ticket_key",
+              "displayName": "ticket_key",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "summary",
+              "displayName": "summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "developer_account_id",
+              "displayName": "developer_account_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "developer_name",
+              "displayName": "developer_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "pr_url",
+              "displayName": "pr_url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "report_md",
+              "displayName": "report_md",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "blockers_json",
+              "displayName": "blockers_json",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "active",
+              "displayName": "active",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        1408,
+        -96
+      ],
+      "id": "ca72e4ad-c323-42ea-a950-94dc8a7f893d",
+      "name": "Insertar Manual CR"
+    },
+    {
+      "parameters": {
+        "chatId": "1043602295",
+        "text": "=🔗 {{ $('Analizar Vinculos CR').item.json.relaciones.join('\\n🔗 ') }} \nCode review: revisar manualmente. \nhttps://devactiva.atlassian.net/browse/{{ $('Analizar Vinculos CR').item.json.key }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1632,
+        -96
+      ],
+      "id": "9d19c239-2fa3-4ec9-bdf1-e9b2e8974d7a",
+      "name": "TG Manual CR",
+      "webhookId": "96f7185f-31d1-4e85-ad30-543843c94a41",
+      "credentials": {
+        "telegramApi": {
+          "id": "hC0KGlFBIsLx27eN",
+          "name": "TokenDevActivaBot"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "GetIssues",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GetIssues": {
+      "main": [
+        [
+          {
+            "node": "Tiene Ticket",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Filas Activas",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If row does not exist": {
+      "main": [
+        [
+          {
+            "node": "Analizar Vinculos CR",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "GetIssues",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert row": {
+      "main": [
+        [
+          {
+            "node": "TG Nuevos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filas Activas": {
+      "main": [
+        [
+          {
+            "node": "Fuera de CR",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fuera de CR": {
+      "main": [
+        [
+          {
+            "node": "Desactivar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tiene Ticket": {
+      "main": [
+        [
+          {
+            "node": "If row does not exist",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analizar Vinculos CR": {
+      "main": [
+        [
+          {
+            "node": "Tiene Implement?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tiene Implement?": {
+      "main": [
+        [
+          {
+            "node": "Insertar Manual CR",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Insert row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insertar Manual CR": {
+      "main": [
+        [
+          {
+            "node": "TG Manual CR",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "6842546d-f04a-412c-829c-16d19194b386",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "abda80ae0fb86c9b9efc9ed528d300d884d999bfc3ec9716d3ffac03ebb6417e"
+  },
+  "nodeGroups": [],
+  "id": "0tRBg38QC9PNIHEt",
+  "tags": []
+}
